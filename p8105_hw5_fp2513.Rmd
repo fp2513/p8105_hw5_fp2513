@@ -65,9 +65,25 @@ average_birthday_dup_df =
   average = averages
 )
 
+ggplot(average_birthday_dup_df, aes(x = group_size, y = average)) +
+  geom_point() +
+  labs(
+    title = "Probability of At Least Two People Sharing a Birthday",
+    x = "Group Size (n)",
+    y = "Probability"
+  ) +
+  theme_minimal() 
+
 ```
 
-```{r}
+The plot follows a sigmoidal curve. 
 
-```
+Where:
+At small group sizes (e.g., between 2 and 10 people), the probability of at least two people sharing a birthday starts off low. For very small groups, the probability is almost zero.
+
+As the group size increases, the probability increases rapidly. This is the steep part of the curve where the probability jumps due to the growing number of possible pairs of people that could share a birthday.
+
+For larger group sizes, the curve begins to level off. As more people are added, the probability approaches 1 (or 100%) because, with enough people, it becomes almost certain that at least two will share a birthday.
+
+
 
