@@ -81,9 +81,37 @@ The plot follows a sigmoidal curve.
 Where:
 At small group sizes (e.g., between 2 and 10 people), the probability of at least two people sharing a birthday starts off low. For very small groups, the probability is almost zero.
 
-As the group size increases, the probability increases rapidly. This is the steep part of the curve where the probability jumps due to the growing number of possible pairs of people that could share a birthday.
+As group size increases, the probability increases rapidly. 
 
-For larger group sizes, the curve begins to level off. As more people are added, the probability approaches 1 (or 100%) because, with enough people, it becomes almost certain that at least two will share a birthday.
+For larger group sizes, the curve begins to level off and probability approaches 1 (or 100%) because, with enough people, it becomes almost certain that at least two will share a birthday.
 
+
+## Problem 2
+
+```{r}
+sim_power = function(samp_size = 30, mu = 0, sigma = 5, num_simulations = 5000, alpha = 0.05) {  
+  
+    run_simulation = function() {
+
+          sample_data = rnorm(samp_size, mean = mu, sd = sigma)
+          
+          test_result = t.test(sample_data, mu = 0)
+          
+          result = broom::tidy(test_result)
+    return(result)
+    }
+    
+      results = replicate(num_simulations, run_simulation(), simplify = FALSE)
+
+        results_df = bind_rows(results)
+
+          power = mean(results_df$p.value < alpha)
+
+    return(power)
+}
+
+sim_power_result = sim_power()
+cat("Estimated power of the one-sample t-test: ", sim_power_result, n)
+```
 
 
