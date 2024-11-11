@@ -287,6 +287,22 @@ homicide_df = read_csv(file = "data/homicide-data.csv", na = c("NA", ",", ".")) 
 ```
 
 ```{r}
+baltimore_data = homicide_df %>%
+  filter(city_state == "Baltimore, MD")
+
+B_unsolved_homicides = sum(baltimore_data$disposition %in% c("Closed without arrest", "Open/No arrest"))
+B_total_homicides = nrow(baltimore_data)
+
+prop_test_Baltimore = prop.test(B_unsolved_homicides, B_total_homicides)
+
+tidy_prop_test_Baltimore = broom::tidy(prop_test_Baltimore)
+
+Bal_estimated_proportion = tidy_prop_test_Baltimore$estimate
+Bal_conf_int_lower = tidy_prop_test_Baltimore$conf.low
+Bal_conf_int_upper = tidy_prop_test_Baltimore$conf.high
+
+cat("Estimated proportion of unsolved homicides: ", Bal_estimated_proportion, "\n")
+cat("95% Confidence interval: (", Bal_conf_int_lower, ", ", Bal_conf_int_upper, ")\n")
 
 ```
 
