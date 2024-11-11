@@ -166,3 +166,110 @@ Plots starts with low power when mu = 0 (since it is where the null hypothesis i
 At small deviations from 0, such as mu = 1, the power is still relatively low and likely due to that it cannot detect the difference between null and alternative. 
 
 With increasing power this means that the test becomes more likely to reject the null hypothesis as the difference between the null hypothesis and the true mean grows.
+
+**showing the average estimate of sample mean vs true mean**
+
+```{r}
+sim_mu_estimate = function(samp_size = 30, mu_values = c(0, 1, 2, 3, 4, 5, 6), sigma = 5, num_simulations = 5000) {  
+  
+  run_simulation = function(mu) {
+    sample_data = rnorm(samp_size, mean = mu, sd = sigma)
+    # Calculate  sample mean 
+    sample_mean = mean(sample_data)
+    return(sample_mean)
+  }
+  
+  mu_estimates = sapply(mu_values, function(mu) {
+    estimates = replicate(num_simulations, run_simulation(mu))
+    avg_estimate = mean(estimates)  
+    return(avg_estimate)
+  })
+  
+  names(mu_estimates) = mu_values
+  return(mu_estimates)
+}
+
+sim_mu_result = sim_mu_estimate()
+
+mu_estimate_df = data.frame(
+  mu = as.numeric(names(sim_mu_result)),
+  avg_estimate = sim_mu_result
+)
+
+ggplot(mu_estimate_df, aes(x = mu, y = avg_estimate)) +
+  geom_point() + 
+  geom_smooth(se = FALSE) + 
+  labs(title = "Average Estimate of μ̂ vs True Value of μ",
+       x = "True Value of μ",
+       y = "Average Estimate of μ̂") +
+  theme_minimal() 
+
+
+```
+
+**plot for the average estimate of sample mu only in samples for which the null was rejected on the y axis and the true value of mu on the x axis**
+
+```{r}
+
+sim_power = function(samp_size = 30, mu = 0, sigma = 5, num_simulations = 5000, alpha = 0.05) {  
+  run_simulation = function() {
+    sample_data = rnorm(samp_size, mean = mu, sd = sigma)
+    test_result = t.test(sample_data, mu = 0)
+    result = broom::tidy(test_result)
+    return(result)
+  }
+  
+  results = replicate(num_simulations, run_simulation(), simplify = FALSE)
+  results_df = bind_rows(results)
+  
+  # Choosing the results where the null hypothesis is rejected
+  rejected_null = results_df[results_df$p.value < alpha, ]
+  
+  # Calculate the average of sample means for rejected nulls
+  avg_mu_rejected = mean(rejected_null$estimate)
+  
+  return(avg_mu_rejected)
+}
+
+# Set of true mu values for simulation
+mu_values = c(1, 2, 3, 4, 5, 6)
+
+# Run the simulation for each mu
+avg_mu_rejected_values = sapply(mu_values, function(mu) {
+  sim_power(samp_size = 30, mu = mu, sigma = 5, num_simulations = 5000, alpha = 0.05)
+})
+
+results_df = data.frame(
+  True_mu = mu_values,
+  Avg_mu_rejected = avg_mu_rejected_values
+)
+
+ggplot(results_df, aes(x = True_mu, y = Avg_mu_rejected)) +
+  geom_point() +
+  geom_line() +
+  labs(
+    title = "Average Sample Mean for Samples Where Null Was Rejected",
+    x = "True mean",
+    y = "Average sample mean (Only Rejected Null)"
+  ) +
+  theme_minimal()
+
+
+```
+
+**Is the sample average of the sample mean (mu hat) across the tests for which the null is rejected approximately equal to the true value of mean? Why or why not?**
+
+
+The sample average of the sample mean (mu hat) of the tests where the null hypothesis is rejected is not necessarily equal to the true value of the true mean (mu). 
+
+One reason is because in taking the sample average of the sample mean of the tests where the null hypothesis is rejected is ultimately a subset of all the tests which were performed. Because it is a subset, it is biased and likely over-represents those sample means that were extreme and lead to very small p-values (that rejected the null hypothesis). This focus on the cases where only the null hypothesis was rejected means that there is a biased selection for sample means that are farther away from zero. Therefore, a overestimation compared to the true value of the true mean (mu). 
+
+In the case here, when the true mean is as a large as 6, the difference between the sample mean and the null hypothesis (0) is substantial. Thus making it increasing likely that the null hypothesis will be rejected. As a result, the bias mentioned due to selecting only the rejected cases becomes minimal, and the sample mean closely approximates the true mean. 
+
+Hence the graph accurately depicts the convergence between the true mean and the sample mean in simulations for larger true mean values (with large effect size and sufficient sample size, n = 30). 
+
+
+## Problem 3
+
+
+
