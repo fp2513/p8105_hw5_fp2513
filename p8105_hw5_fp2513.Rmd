@@ -271,5 +271,22 @@ Hence the graph accurately depicts the convergence between the true mean and the
 
 ## Problem 3
 
+```{r}
+homicide_df = read_csv(file = "data/homicide-data.csv", na = c("NA", ",", ".")) %>% 
+  janitor::clean_names() %>% 
+  mutate(
+    city_state = str_c(city,", ", state)
+  ) %>% 
+  group_by(city) %>% 
+  mutate(
+    total_homicides = n(),
+    unsolved_homicides = sum(disposition %in% c("Closed without arrest", "Open/No arrest"))
+  ) %>%
+  ungroup()
 
+```
+
+```{r}
+
+```
 
