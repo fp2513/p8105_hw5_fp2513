@@ -320,3 +320,22 @@ prop_by_city = homicide_df %>%
   distinct(city, .keep_all = TRUE)
 ```
 
+```{r}
+ggplot(prop_by_city, aes(x = reorder(city, estimate), y = estimate)) +
+  geom_point(color = "red", size = 3) +
+  geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width = 0.2) + 
+  labs(
+    x = "City", 
+    y = "Proportion of Unsolved Homicides", 
+    title = "Proportion of Unsolved Homicides with Confidence Intervals by City"
+  ) + 
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 90, hjust = 1),  # Rotate x-axis labels for readability
+    plot.title = element_text(hjust = 0.5)
+  )
+```
+
+
+
+
