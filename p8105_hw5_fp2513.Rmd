@@ -306,3 +306,17 @@ cat("95% Confidence interval: (", Bal_conf_int_lower, ", ", Bal_conf_int_upper, 
 
 ```
 
+```{r}
+prop_by_city = homicide_df %>%
+  group_by(city) %>%
+  mutate(
+    city_prop_test_result = map2(unsolved_homicides, total_homicides, ~ prop.test(.x, .y))
+  ) %>%
+  mutate(
+    city_tidy_result = map(city_prop_test_result, broom::tidy)
+  ) %>% 
+  unnest(city_tidy_result) %>%
+  select(city_state, city, estimate, conf.low, conf.high) %>% 
+  distinct(city, .keep_all = TRUE)
+```
+
